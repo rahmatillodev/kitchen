@@ -7,6 +7,14 @@
   font-family: "Poppins", sans-serif;
 }
 
+.warning-bg {
+  background: #ff5c00;
+}
+.warning-text {
+  color: #ff5c00;
+
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

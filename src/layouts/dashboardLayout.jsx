@@ -5,7 +5,7 @@ export const DashboardLayout = () => {
   return (
     <div>
         <Navbar/>
-      <div style={{ flex: 1, padding: '2rem', background: '#f3f4f6' }}>
+      <div>
         <Outlet />
       </div>
     </div>
