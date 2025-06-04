@@ -40,7 +40,7 @@ export default function FilterDashboard({ search, setSearch, peopleCount, setPeo
           </SelectTrigger>
           <SelectContent>
             {mockTable.map(num => (
-              <SelectItem key={num.id} value={num.id}>
+              <SelectItem key={num.id} value={num.name}>
                 {num.name}
               </SelectItem>
             ))}

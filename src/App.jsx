@@ -9,7 +9,7 @@ import History from './pages/history';
 const App = () => {
   return (
     <div>
-      <ToastContainer autoClose={2000} />
+      <ToastContainer autoClose={1000} />
       <BrowserRouter>
         <Routes>
           <Route element={<AuthLayout />}>

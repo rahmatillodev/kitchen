@@ -4,7 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { TbTrash } from 'react-icons/tb';
 
-export default function MenuBar({ selectedItems, onIncrease, onDecrease, clearItems, peopleCount, PEOPLE_PRICE, onSubmitOrder }) {
+// MenuBar.jsx
+export default function MenuBar({
+  selectedItems,
+  onIncrease,
+  onDecrease,
+  clearItems,
+  peopleCount,
+  PEOPLE_PRICE,
+  onSubmitOrder,
+  isEditMode, // yangi prop
+}) {
 
   const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const peopleCountNumber = parseInt(peopleCount) || 0;
@@ -77,12 +87,13 @@ export default function MenuBar({ selectedItems, onIncrease, onDecrease, clearIt
           <span>{(totalPrice + peopleCountNumber * PEOPLE_PRICE).toLocaleString()} so'm</span>
         </div>
         <Button
-          className="w-full warning-bg"
-          size="sm"
-          onClick={onSubmitOrder}
-        >
-          Buyurtmani qo'shish
-        </Button>
+  className="w-full warning-bg"
+  size="sm"
+  onClick={onSubmitOrder}
+>
+  {isEditMode ? "Buyurtmani yangilash" : "Buyurtmani qo'shish"}
+</Button>
+
       </div>
 
     </div>

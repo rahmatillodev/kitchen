@@ -1,79 +1,90 @@
-import React, { useState } from 'react';
-import MenuBar from '../components/home/menuBar';
-import ProductItems from '../components/home/productItems';
-import FilterDashboard from '../components/home/filterDashboard';
-import { mockProducts } from '../infrastructure/mock/mockData';
-import { useOrderStore } from '../stores/cartStore';
-import { mockOrders, PEOPLE_PRICE } from '../infrastructure/mock/mockData';
+// HomePage.jsx
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-export default function Home() {
+import { useOrderStore } from '../stores/cartStore';
+import FilterDashboard from '../components/home/FilterDashboard';
+import ProductItems from '../components/home/ProductItems';
+import MenuBar from '../components/home/MenuBar';
+
+import { mockProducts, mockOrders, PEOPLE_PRICE } from '../infrastructure/mock/mockData';
+
+export default function HomePage() {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const isEditMode = query.get('edit');
+
+  const {
+    selectedItems,
+    addItem,
+    increaseQty,
+    decreaseQty,
+    clearItems,
+    editingOrder,
+    peopleCount,
+    tableNumber,
+    setPeopleCount,
+    setTableNumber,
+    setEditingOrder,
+  } = useOrderStore();
+
   const [search, setSearch] = useState('');
-  const [peopleCount, setPeopleCount] = useState('');
-  const [tableNumber, setTableNumber] = useState('');
 
+  useEffect(() => {
+    if (isEditMode && editingOrder) {
+      setEditingOrder(editingOrder); // Hammasini update qiladi
+    }
+  }, [isEditMode, editingOrder, setEditingOrder]);
 
-  const selectedItems = useOrderStore(state => state.selectedItems);
-  const addItem = useOrderStore(state => state.addItem);
-  const increaseQty = useOrderStore(state => state.increaseQty);
-  const decreaseQty = useOrderStore(state => state.decreaseQty);
-  const clearItems = useOrderStore(state => state.clearItems);
-
-
-  // yakuniy buyurtmalarni saqlash uchun
   const handleSubmitOrder = () => {
-    if (!peopleCount.trim()) {
-      toast.warn("Iltimos, odamlar sonini kiriting");
+    if (!peopleCount.trim() || !tableNumber.trim() || selectedItems.length === 0) {
+      toast.warn("Iltimos, barcha maydonlarni to'ldiring va kamida bitta taom tanlang");
       return;
     }
 
-    if (!tableNumber.trim()) {
-      toast.warn("Iltimos, stol raqamini tanlang");
-      return;
-    }
-
-    if (selectedItems.length === 0) {
-      toast.warn("Iltimos, kamida bitta taom tanlang");
-      return;
-    }
-
-    const baseTotal = selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const baseTotal = selectedItems.reduce(
+      (sum, item) => sum + item.price * item.qty,
+      0
+    );
     const peopleCountNumber = parseInt(peopleCount);
     const peopleCountPrice = peopleCountNumber * PEOPLE_PRICE;
     const finalTotal = baseTotal + peopleCountPrice;
 
     const newOrder = {
-      id: Date.now(),
+      id: editingOrder?.id || Date.now(),
       items: selectedItems,
       peopleCount: peopleCountNumber,
       tableNumber,
       peopleCountPrice,
       baseTotal,
       finalTotal,
-      createdAt: new Date().toISOString(),
+      createdAt: editingOrder?.createdAt || new Date().toISOString(),
     };
 
-    mockOrders.push(newOrder);
-    toast.success("Buyurtma muvaffaqiyatli qo‘shildi!");
+    if (editingOrder) {
+      const index = mockOrders.findIndex((o) => o.id === editingOrder.id);
+      if (index !== -1) {
+        mockOrders[index] = newOrder;
+        toast.success('Buyurtma o‘zgartirildi!');
+      }
+    } else {
+      mockOrders.push(newOrder);
+      console.log(newOrder);
+      toast.success('Buyurtma qo‘shildi!');
+    }
 
     clearItems();
-    setPeopleCount('');
-    setTableNumber('');
   };
 
-
-
-
-
-  const filteredProducts = mockProducts.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+  const filteredProducts = mockProducts.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase())
   );
 
-
   return (
-    <div className="h-[calc(100vh-64px)] flex gap-0 overflow-hidden">
-      <div className="w-4/5 flex flex-col">
-        <div className="border-b">
+    <div className="h-[calc(100vh-64px)] flex overflow-hidden">
+      <section className="w-4/5 flex flex-col">
+        <header className="border-b">
           <FilterDashboard
             search={search}
             setSearch={setSearch}
@@ -82,13 +93,13 @@ export default function Home() {
             tableNumber={tableNumber}
             setTableNumber={setTableNumber}
           />
-        </div>
-        <div className="flex-1 overflow-y-auto">
+        </header>
+        <main className="flex-1 overflow-y-auto">
           <ProductItems products={filteredProducts} onAdd={addItem} />
-        </div>
-      </div>
+        </main>
+      </section>
 
-      <div className="w-1/5 h-full overflow-y-auto relative">
+      <aside className="w-1/5 h-full overflow-y-auto relative">
         <MenuBar
           selectedItems={selectedItems}
           onIncrease={increaseQty}
@@ -98,8 +109,10 @@ export default function Home() {
           PEOPLE_PRICE={PEOPLE_PRICE}
           tableNumber={tableNumber}
           onSubmitOrder={handleSubmitOrder}
+          isEditMode={!!editingOrder}
         />
-      </div>
+
+      </aside>
     </div>
   );
 }
