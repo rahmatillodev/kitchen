@@ -1,5 +1,5 @@
   import React, { useState } from 'react';
-  import OrderCard from '../components/orders/OrderCard';
+  import OrderCard from '../components/orders/orderCard.jsx';
   import { mockOrders as initialOrders, mockHistory as historyStore } from '../infrastructure/mock/mockData';
 
   function Orders() {

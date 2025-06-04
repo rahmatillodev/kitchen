@@ -13,7 +13,7 @@ import { MdDelete } from 'react-icons/md';
 import { useNavigate } from "react-router-dom";
 import { useOrderStore } from '../../stores/cartStore';
 
-export default function OrderCard({ order, onCancel, onFinish }) {
+ function OrderCard({ order, onCancel, onFinish }) {
   const [openCancel, setOpenCancel] = useState(false);
   const [openFinish, setOpenFinish] = useState(false);
   const printRef = useRef();
@@ -160,3 +160,4 @@ export default function OrderCard({ order, onCancel, onFinish }) {
     </div>
   );
 }
+export default OrderCard

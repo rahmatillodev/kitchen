@@ -42,8 +42,8 @@ export const mockProducts = [
 ];
 
 export const mockUsers = [
-  { id: '1', name: 'Ali', role: 'waiter' },
-  { id: '2', name: 'Vali', role: 'admin' }
+  { id: '1', name: 'Ali', role: 'waiter',password:"123" },
+  { id: '2', name: 'Vali', role: 'admin', password:"321" }
 ];
 
 export const mockTable = [

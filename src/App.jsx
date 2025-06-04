@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Orders from './pages/orders';
 import History from './pages/history';
+import Login from './pages/login';
 const App = () => {
   return (
     <div>
@@ -13,7 +14,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route element={<AuthLayout />}>
-            {/* <Route path="/login" element={<Login />} /> */}
+            <Route path="/login" element={<Login />} />
           </Route>
 
           <Route element={<DashboardLayout />}>
