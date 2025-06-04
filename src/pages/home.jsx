@@ -4,9 +4,9 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { useOrderStore } from '../stores/cartStore';
-import FilterDashboard from '../components/home/FilterDashboard';
-import ProductItems from '../components/home/ProductItems';
-import MenuBar from '../components/home/MenuBar';
+import FilterDashboard from '../components/home/filterDashboard';
+import ProductItems from '../components/home/productItems';
+import MenuBar from '../components/home/menuBar';
 
 import { mockProducts, mockOrders, PEOPLE_PRICE } from '../infrastructure/mock/mockData';
 
