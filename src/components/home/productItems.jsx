@@ -12,7 +12,7 @@ export default function ProductItems({ products, onAdd }) {
         >
           <div className="overflow-hidden">
             <img 
-              src={product.image} 
+              src={`https://kitchenapi.pythonanywhere.com/${product.image}`} 
               alt={product.name} 
               className="w-full aspect-square object-cover"
             />

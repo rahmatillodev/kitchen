@@ -1,83 +1,80 @@
-// HomePage.jsx
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { useOrderStore } from '../stores/cartStore';
+import { useMenuStore } from '../stores/useMenuStore';
+import { useTipAmountStore } from '../stores/useTip_amountStore';
+import { useOrderCreateStore, useOrderUpdateStore } from '../stores/useOrderStore';
+import { useCartStore } from '../stores/cartStore';
+
 import FilterDashboard from '../components/home/filterDashboard';
 import ProductItems from '../components/home/productItems';
 import MenuBar from '../components/home/menuBar';
-
-import { mockProducts, mockOrders, PEOPLE_PRICE } from '../infrastructure/mock/mockData';
 
 export default function HomePage() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const isEditMode = query.get('edit');
-
   const {
     selectedItems,
-    addItem,
-    increaseQty,
-    decreaseQty,
-    clearItems,
-    editingOrder,
     peopleCount,
     tableNumber,
+    editingOrder,
+    clearItems,
     setPeopleCount,
     setTableNumber,
-    setEditingOrder,
-  } = useOrderStore();
+    addItem,increaseQty,decreaseQty
+  } = useCartStore();
+  
+
+  const { updateOrder } = useOrderUpdateStore();
+  const { createOrder } = useOrderCreateStore();
+  const { menus, loading } = useMenuStore();
+  const { tipAmount } = useTipAmountStore();
 
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    if (isEditMode && editingOrder) {
-      setEditingOrder(editingOrder); // Hammasini update qiladi
-    }
-  }, [isEditMode, editingOrder, setEditingOrder]);
+  // useEffect(() => {
+  //   if (isEditMode && editingOrder) {
+  //   }
+  // }, [isEditMode, editingOrder]);
 
-  const handleSubmitOrder = () => {
-    if (!peopleCount.trim() || !tableNumber.trim() || selectedItems.length === 0) {
+  const handleSubmitOrder = async () => {
+    if (!peopleCount.trim() || !tableNumber || selectedItems.length === 0) {
       toast.warn("Iltimos, barcha maydonlarni to'ldiring va kamida bitta taom tanlang");
       return;
     }
 
-    const baseTotal = selectedItems.reduce(
-      (sum, item) => sum + item.price * item.qty,
-      0
-    );
-    const peopleCountNumber = parseInt(peopleCount);
-    const peopleCountPrice = peopleCountNumber * PEOPLE_PRICE;
-    const finalTotal = baseTotal + peopleCountPrice;
+    const orderItems = selectedItems.map((item) => ({
+      menu: item.id,
+      quantity: item.quantity,
+    }));
 
     const newOrder = {
-      id: editingOrder?.id || Date.now(),
-      items: selectedItems,
-      peopleCount: peopleCountNumber,
-      tableNumber,
-      peopleCountPrice,
-      baseTotal,
-      finalTotal,
-      createdAt: editingOrder?.createdAt || new Date().toISOString(),
+      table: Number(tableNumber),
+      items: orderItems,
+      tip_amount: Number(tipAmount) || 0,
+      client_count: Number(peopleCount),
     };
 
-    if (editingOrder) {
-      const index = mockOrders.findIndex((o) => o.id === editingOrder.id);
-      if (index !== -1) {
-        mockOrders[index] = newOrder;
-        toast.success('Buyurtma o‘zgartirildi!');
+    try {
+      if (editingOrder) {
+        console.log(editingOrder);
+        await updateOrder(editingOrder.id, newOrder);
+      } else {
+        await createOrder({
+          ...newOrder,
+        });
       }
-    } else {
-      mockOrders.push(newOrder);
-      console.log(newOrder);
-      toast.success('Buyurtma qo‘shildi!');
-    }
 
-    clearItems();
+      clearItems();
+    } catch (error) {
+      console.error("Buyurtmani jo'natishda xatolik:", error);
+      toast.error("Buyurtmani yuborishda xatolik yuz berdi.");
+    }
   };
 
-  const filteredProducts = mockProducts.filter((product) =>
+  const filteredProducts = menus.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -95,7 +92,11 @@ export default function HomePage() {
           />
         </header>
         <main className="flex-1 overflow-y-auto">
-          <ProductItems products={filteredProducts} onAdd={addItem} />
+          {loading ? (
+            <p className="p-4">Menyular yuklanmoqda...</p>
+          ) : (
+            <ProductItems products={filteredProducts} onAdd={addItem} />
+          )}
         </main>
       </section>
 
@@ -106,12 +107,11 @@ export default function HomePage() {
           onDecrease={decreaseQty}
           clearItems={clearItems}
           peopleCount={peopleCount}
-          PEOPLE_PRICE={PEOPLE_PRICE}
+          PEOPLE_PRICE={tipAmount}
           tableNumber={tableNumber}
           onSubmitOrder={handleSubmitOrder}
           isEditMode={!!editingOrder}
         />
-
       </aside>
     </div>
   );

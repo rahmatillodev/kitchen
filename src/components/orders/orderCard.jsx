@@ -11,20 +11,19 @@ import {
 import { BiCheck, BiEdit } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from "react-router-dom";
-import { useOrderStore } from '../../stores/cartStore';
+import { useCartStore } from '../../stores/cartStore';
 
- function OrderCard({ order, onCancel, onFinish }) {
+function OrderCard({ order, onCancel, onFinish }) {
   const [openCancel, setOpenCancel] = useState(false);
   const [openFinish, setOpenFinish] = useState(false);
   const printRef = useRef();
   const navigate = useNavigate();
-  const setEditingOrder = useOrderStore(state => state.setEditingOrder);
-
-  const totalFormatted = Number(order.finalTotal).toLocaleString();
+  const setEditingOrder = useCartStore(state => state.setEditingOrder);
+  console.log(order);
 
   const handleEdit = () => {
     setEditingOrder(order);
-    navigate('/dashboard');
+    navigate('/dashboard?edit=true', { state: { order } });
   };
 
   const handlePrint = () => {
@@ -58,22 +57,22 @@ import { useOrderStore } from '../../stores/cartStore';
       <div>
         <div className="flex justify-between items-center mb-2">
           <div>
-            <h3 className="font-semibold text-md">{order.tableNumber}</h3>
-            <p className="text-sm text-gray-500">Odamlar: {order.peopleCount}</p>
+            <h3 className="font-semibold text-md">Stol {order.table}</h3>
+            <p className="text-sm text-gray-500">Odamlar: {order.client_count}</p>
           </div>
         </div>
 
         <ul className="text-sm text-gray-700 space-y-1 mb-3 h-40 overflow-auto">
-          {order.items.map((item) => (
-            <div key={item.id} className="border-b mb-2">
-              <li>{item.name} × {item.qty}</li>
-              <li className="text-end">{(item.qty * item.price).toLocaleString()} so'm</li>
+          {order.items.map((item, index) => (
+            <div key={index} className="border-b mb-2">
+              <li>{item.menu_name} × {item.quantity}</li>
+              <li className="text-end">{(item.quantity * item.current_price).toLocaleString()} so'm</li>
             </div>
           ))}
         </ul>
 
-        <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleString()}</p>
-        <p className="text-green-600 font-bold mb-2">Jami: {totalFormatted} so'm</p>
+        <p className="text-xs text-gray-400">{new Date(order.created_time).toLocaleString()}</p>
+        <p className="text-green-600 font-bold mb-2">Jami: {Number(order.total_price).toLocaleString()} so'm</p>
       </div>
 
       <div className="flex justify-center gap-2">
@@ -102,7 +101,7 @@ import { useOrderStore } from '../../stores/cartStore';
         </DialogContent>
       </Dialog>
 
-      {/* Finish Dialog with Check */}
+      {/* Finish Dialog with Receipt */}
       <Dialog open={openFinish} onOpenChange={setOpenFinish}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -112,36 +111,36 @@ import { useOrderStore } from '../../stores/cartStore';
 
           <div ref={printRef} className="text-sm text-gray-700 space-y-2 max-h-[300px] overflow-auto">
             <div className="border-b pb-2">
-              <p><span className="font-semibold">Stol raqami:</span> {order.tableNumber}</p>
-              <p><span className="font-semibold">Odamlar soni:</span> {order.peopleCount}</p>
-              <p><span className="font-semibold">Sana:</span> {new Date(order.createdAt).toLocaleString()}</p>
+              <p><span className="font-semibold">Stol raqami:</span> {order.table}</p>
+              <p><span className="font-semibold">Odamlar soni:</span> {order.client_count}</p>
+              <p><span className="font-semibold">Sana:</span> {new Date(order.created_time).toLocaleString()}</p>
             </div>
 
             <div>
               <p className="font-semibold mb-1">Taomlar:</p>
               <ul className="space-y-1">
-                {order.items.map(item => (
-                  <li key={item.id} className="flex justify-between border-b pb-1">
-                    <span>{item.name} × {item.qty}</span>
-                    <span>{(item.price * item.qty).toLocaleString()} so'm</span>
+                {order.items.map((item, index) => (
+                  <li key={index} className="flex justify-between border-b pb-1">
+                    <span>{item.menu_name} × {item.quantity}</span>
+                    <span>{(item.current_price * item.quantity).toLocaleString()} so'm</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="border-t pt-2 space-y-1">
+            <div className="pt-2 space-y-1">
               <div className="flex justify-between">
-                <span>Odamlar ({order.peopleCount} × {(order.peopleCountPrice / order.peopleCount).toLocaleString()}):</span>
-                <span>{Number(order.peopleCountPrice).toLocaleString()} so'm</span>
+                <span>Odamlar ({order.client_count} × {order.current_tip_amount})</span>
+                <span>{(order.client_count * order.current_tip_amount).toLocaleString()} so'm</span>
               </div>
               <div className="flex justify-between font-semibold text-md text-green-600">
                 <span>Umumiy:</span>
-                <span>{Number(order.finalTotal).toLocaleString()} so'm</span>
+                <span>{Number(order.total_price).toLocaleString()} so'm</span>
               </div>
             </div>
           </div>
 
-          <DialogFooter className="pt-2 ">
+          <DialogFooter className="pt-2">
             <div className='flex justify-between w-full'>
               <Button onClick={handlePrint}>Chekni olish</Button>
               <div className='flex gap-2'>
@@ -160,4 +159,5 @@ import { useOrderStore } from '../../stores/cartStore';
     </div>
   );
 }
-export default OrderCard
+
+export default OrderCard;

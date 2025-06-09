@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,8 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { mockOrders } from "../infrastructure/mock/mockData";
 import CheckModal from "../components/history/checkModal";
+import { useOrderStore } from "../stores/useOrderStore";
 
 const formatDate = (iso) =>
   iso
@@ -26,29 +26,29 @@ const formatDate = (iso) =>
         hour: "2-digit",
         minute: "2-digit",
       })
-    : "";
+    : "-";
 
 export default function HistoryPage() {
+  const { allOrders, fetchCompletedOrders } = useOrderStore();
+
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10;
 
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = mockOrders.slice(indexOfFirstOrder, indexOfLastOrder);
-  const totalPages = Math.ceil(mockOrders.length / ordersPerPage);
+  useEffect(() => {
+    fetchCompletedOrders(currentPage);
+  }, [currentPage]);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const completedOrders = allOrders?.results?.data ?? [];
+  const totalCount = allOrders?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / 10);
+
+  const loading = !allOrders; 
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Buyurtmalar tarixi</h2>
 
-      {mockOrders.length === 0 ? (
-        <p className="text-gray-500 text-sm">
-          Hozircha hech qanday buyurtma mavjud emas.
-        </p>
-      ) : (
+      {!loading && (
         <>
           <Table>
             <TableHeader>
@@ -57,26 +57,25 @@ export default function HistoryPage() {
                 <TableHead>Odamlar</TableHead>
                 <TableHead>Vaqti</TableHead>
                 <TableHead>Umumiy</TableHead>
-                <TableHead>To'liq ma'lumot</TableHead>
+                <TableHead>Harakatlar</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentOrders.map((order) => (
+              {completedOrders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell>{order.tableNumber ?? "-"}</TableCell>
-                  <TableCell>{order.peopleCount ?? "-"}</TableCell>
-                  <TableCell>{formatDate(order.createdAt)}</TableCell>
+                  <TableCell>{order.table ?? "-"}</TableCell>
+                  <TableCell>{order.client_count ?? "-"}</TableCell>
+                  <TableCell>{formatDate(order.created_time)}</TableCell>
                   <TableCell>
-                    {order.finalTotal !== undefined && order.finalTotal !== null
-                      ? order.finalTotal.toLocaleString()
-                      : "-"}{" "}
-                    so'm
+                    {parseFloat(order.total_price)?.toLocaleString("uz-UZ") ?? "-"} so'm
                   </TableCell>
                   <TableCell className="space-x-2">
+                    {/* Batafsil Modal */}
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
+                          variant="outline"
                           onClick={() => setSelectedOrder(order)}
                         >
                           Batafsil
@@ -86,51 +85,36 @@ export default function HistoryPage() {
                         <DialogHeader>
                           <DialogTitle>Buyurtma tafsilotlari</DialogTitle>
                         </DialogHeader>
-                        {selectedOrder && (
-                          <div className="space-y-2">
-                            <div className="text-sm">
-                              Stol: {selectedOrder.tableNumber ?? "-"}
-                            </div>
-                            <div className="text-sm">
-                              Odamlar soni: {selectedOrder.peopleCount ?? "-"}
-                            </div>
-                            <div className="text-sm">
-                              Vaqti: {formatDate(selectedOrder.createdAt)}
-                            </div>
-                            <hr className="my-2" />
-                            <div className="space-y-1">
-                              {selectedOrder.items &&
-                              selectedOrder.items.length > 0 ? (
-                                selectedOrder.items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="flex justify-between text-sm"
-                                  >
-                                    <span>
-                                      {item.name ?? "Noma'lum"} ×{" "}
-                                      {item.qty ?? 0}
-                                    </span>
-                                    <span>
-                                      {item.price && item.qty
-                                        ? (item.price * item.qty).toLocaleString()
-                                        : "0"}{" "}
-                                      so'm
-                                    </span>
-                                  </div>
-                                ))
-                              ) : (
-                                <p>Buyurtma elementlari mavjud emas.</p>
-                              )}
-                            </div>
-                            <hr className="my-2" />
-                            <div className="flex justify-between font-semibold text-sm">
+                        {selectedOrder?.id === order.id && (
+                          <div className="space-y-2 text-sm">
+                            <p>Stol: {selectedOrder.table ?? "-"}</p>
+                            <p>Odamlar soni: {selectedOrder.client_count ?? "-"}</p>
+                            <p>Vaqti: {formatDate(selectedOrder.created_time)}</p>
+                            <hr />
+                            {selectedOrder.items?.length ? (
+                              selectedOrder.items.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex justify-between items-center"
+                                >
+                                  <span>
+                                    {item.menu_name ?? "Noma'lum"} × {item.quantity ?? 0}
+                                  </span>
+                                  <span>
+                                    {(
+                                      parseFloat(item.current_price) * item.quantity
+                                    ).toLocaleString()} so'm
+                                  </span>
+                                </div>
+                              ))
+                            ) : (
+                              <p>Elementlar mavjud emas</p>
+                            )}
+                            <hr />
+                            <div className="flex justify-between font-semibold">
                               <span>Umumiy:</span>
                               <span>
-                                {selectedOrder.finalTotal !== undefined &&
-                                selectedOrder.finalTotal !== null
-                                  ? selectedOrder.finalTotal.toLocaleString()
-                                  : "0"}{" "}
-                                so'm
+                                {parseFloat(selectedOrder.total_price)?.toLocaleString()} so'm
                               </span>
                             </div>
                           </div>
@@ -138,6 +122,7 @@ export default function HistoryPage() {
                       </DialogContent>
                     </Dialog>
 
+                    {/* Chekni ko‘rish */}
                     <CheckModal
                       order={order}
                       trigger={
@@ -146,7 +131,7 @@ export default function HistoryPage() {
                           variant="secondary"
                           onClick={() => setSelectedOrder(order)}
                         >
-                          Chekni ko'rish
+                          Chekni ko‘rish
                         </Button>
                       }
                     />
@@ -156,15 +141,14 @@ export default function HistoryPage() {
             </TableBody>
           </Table>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
+          {totalPages && (
             <div className="flex justify-end mt-6 gap-2">
               {Array.from({ length: totalPages }, (_, i) => (
                 <Button
-                  key={i + 1}
+                  key={i}
                   variant={currentPage === i + 1 ? "default" : "outline"}
-                  onClick={() => paginate(i + 1)}
                   className="w-10 h-10 p-0"
+                  onClick={() => setCurrentPage(i + 1)}
                 >
                   {i + 1}
                 </Button>

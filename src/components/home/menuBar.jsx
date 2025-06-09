@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { TbTrash } from 'react-icons/tb';
 
-// MenuBar.jsx
 export default function MenuBar({
   selectedItems,
   onIncrease,
@@ -13,10 +12,10 @@ export default function MenuBar({
   peopleCount,
   PEOPLE_PRICE,
   onSubmitOrder,
-  isEditMode, // yangi prop
+  isEditMode,
 }) {
 
-  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const peopleCountNumber = parseInt(peopleCount) || 0;
 
 
@@ -36,14 +35,14 @@ export default function MenuBar({
             <p className="text-xs text-gray-400 mt-1">Taomlar tanlang</p>
           </div>
         ) : (
-          selectedItems.map(item => (
-            <Card key={item.id} className="hover:shadow-md transition-shadow text-sm p-0 rounded-md">
+          selectedItems.map((item, index) => (
+            <Card key={index} className="hover:shadow-md transition-shadow text-sm p-0 rounded-md">
               <CardContent className="p-2">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{item.name}</p>
                     <p className="text-xs text-gray-600">
-                      {item.price.toLocaleString()} so'm x {item.qty}
+                      {item.price.toLocaleString()} so'm x {item.quantity}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -66,7 +65,7 @@ export default function MenuBar({
                   </div>
                 </div>
                 <div className="mt-1 text-right font-medium text-sm">
-                  Jami: {(item.price * item.qty).toLocaleString()} so'm
+                  Jami: {(item.price * item.quantity).toLocaleString()} so'm
                 </div>
               </CardContent>
             </Card>
@@ -87,12 +86,12 @@ export default function MenuBar({
           <span>{(totalPrice + peopleCountNumber * PEOPLE_PRICE).toLocaleString()} so'm</span>
         </div>
         <Button
-  className="w-full warning-bg"
-  size="sm"
-  onClick={onSubmitOrder}
->
-  {isEditMode ? "Buyurtmani yangilash" : "Buyurtmani qo'shish"}
-</Button>
+          className="w-full warning-bg"
+          size="sm"
+          onClick={onSubmitOrder}
+        >
+          {isEditMode ? "Buyurtmani yangilash" : "Buyurtmani qo'shish"}
+        </Button>
 
       </div>
 

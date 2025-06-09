@@ -22,10 +22,12 @@ const App = () => {
             <Route path="/dashboard/orders" element={<Orders />} />
             <Route path="/dashboard/history" element={<History />} />
           </Route>
+
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </div>
-  );
-};
+  )
+}
+
 export default App;

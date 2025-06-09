@@ -1,29 +1,30 @@
 import { create } from "zustand";
-import { mockUsers } from "../infrastructure/mock/mockData";
+import { persist } from "zustand/middleware";
 
-export const useAuthStore = create((set) => ({
-  user: JSON.parse(localStorage.getItem("user")) || null,
-  login: ({ name, password }) => {
-    const normalizedName = name.toLowerCase();
-    const normalizedPassword = password.toLowerCase();
-
-    const matchedUser = mockUsers.find(
-      (u) =>
-        u.name.toLowerCase() === normalizedName &&
-        u.password.toLowerCase() === normalizedPassword
-    );
-
-    if (matchedUser) {
-      const user = { name: matchedUser.name }; // or other user info
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ user });
-      return true;
+export const useAuthStore = create()(
+  persist(
+    (set) => ({
+      refreshToken: null,
+      accessToken: null,
+      login: async (username, password) => {
+        const res = await fetch('https://kitchenapi.pythonanywhere.com/api/v1/login/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+      
+        if (!res.ok) throw new Error('Login failed');
+        const data = await res.json();
+        console.log(data);
+      
+        set({ 
+          refreshToken: data.refresh, 
+          accessToken: data.access, 
+        });
+      },      
+    }),
+    {
+      name: 'auth-storage',
     }
-
-    return false;
-  },
-  logout: () => {
-    localStorage.removeItem("user");
-    set({ user: null });
-  },
-}));
+  )
+);

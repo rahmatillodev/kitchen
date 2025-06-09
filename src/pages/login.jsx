@@ -9,16 +9,17 @@ const Login = () => {
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = login({ name, password });
-    if (success) {
+    try {
+      await login(name, password);
       toast.success("Muvaffaqiyatli kirildi!");
       navigate("/dashboard");
-    } else {
+    } catch (error) {
       toast.error("Login yoki parol noto‘g‘ri!");
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

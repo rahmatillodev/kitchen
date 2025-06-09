@@ -1,11 +1,10 @@
 // stores/cartStore.js
-
 import { create } from 'zustand';
 
-export const useOrderStore = create((set) => ({
+export const useCartStore = create((set) => ({
   selectedItems: [],
   editingOrder: null,
-  peopleCount: '',
+  peopleCount: "",
   tableNumber: '',
 
   addItem: (item) =>
@@ -14,17 +13,17 @@ export const useOrderStore = create((set) => ({
       if (existing) {
         return {
           selectedItems: state.selectedItems.map((i) =>
-            i.id === item.id ? { ...i, qty: i.qty + 1 } : i
+            i.id === item.id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
           ),
         };
       }
-      return { selectedItems: [...state.selectedItems, { ...item, qty: 1 }] };
+      return { selectedItems: [...state.selectedItems, { ...item, quantity: 1 }] };
     }),
 
   increaseQty: (id) =>
     set((state) => ({
       selectedItems: state.selectedItems.map((item) =>
-        item.id === id ? { ...item, qty: item.qty + 1 } : item
+        item.id === id ? { ...item, quantity: (item.quantity || 1) + 1 } : item
       ),
     })),
 
@@ -32,9 +31,9 @@ export const useOrderStore = create((set) => ({
     set((state) => ({
       selectedItems: state.selectedItems
         .map((item) =>
-          item.id === id ? { ...item, qty: item.qty - 1 } : item
+          item.id === id ? { ...item, quantity: (item.quantity || 1) - 1 } : item
         )
-        .filter((item) => item.qty > 0),
+        .filter((item) => item.quantity > 0),
     })),
 
   clearItems: () =>
@@ -47,10 +46,15 @@ export const useOrderStore = create((set) => ({
 
   setEditingOrder: (order) =>
     set({
-      selectedItems: order.items,
+      selectedItems: order.items.map((item) => ({
+        id: item.menu_id,
+        name: item.menu_name,
+        quantity: item.quantity,
+        price: item.current_price,
+      })),
       editingOrder: order,
-      peopleCount: order.peopleCount.toString(),
-      tableNumber: order.tableNumber.toString(),
+      peopleCount: String(order.client_count),
+      tableNumber: String(order.table),
     }),
 
   setPeopleCount: (value) => set({ peopleCount: value }),

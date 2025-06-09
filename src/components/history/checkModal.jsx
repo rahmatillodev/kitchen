@@ -37,13 +37,13 @@ export default function CheckModal({ order, trigger }) {
         <div className="text-sm text-gray-800 space-y-2 max-h-[350px] overflow-auto print:max-h-full">
           <div className="border-b border-dashed pb-2">
             <p>
-              <strong>Stol raqami:</strong> {order.tableNumber}
+              <strong>Stol raqami:</strong> {order.table}
             </p>
             <p>
-              <strong>Odamlar soni:</strong> {order.peopleCount}
+              <strong>Odamlar soni:</strong> {order.client_count}
             </p>
             <p>
-              <strong>Sana:</strong> {formatDate(order.createdAt)}
+              <strong>Sana:</strong> {formatDate(order.created_time)}
             </p>
           </div>
 
@@ -59,9 +59,9 @@ export default function CheckModal({ order, trigger }) {
                     className="flex justify-between border-b border-dashed pb-1"
                   >
                     <span>
-                      {item.name} × {item.qty}
+                      {item.menu_name} × {item.quantity}
                     </span>
-                    <span>{(item.price * item.qty).toLocaleString()} so'm</span>
+                    <span>{(item.current_price * item.quantity).toLocaleString()} so'm</span>
                   </li>
                 ))
               ) : (
@@ -73,12 +73,12 @@ export default function CheckModal({ order, trigger }) {
           <div className="border-t border-dashed pt-2 space-y-1 mt-4">
             <div className="flex justify-between">
               <span>
-                Odamlar soni: ({order.peopleCount})
+                Odamlar soni: ({order.client_count})
               </span>
             </div>
             <div className="flex justify-between font-semibold text-green-700 text-lg">
               <span>Umumiy:</span>
-              <span>{Number(order.finalTotal).toLocaleString()} so'm</span>
+              <span>{Number(order.total_price).toLocaleString()} so'm</span>
             </div>
           </div>
         </div>
