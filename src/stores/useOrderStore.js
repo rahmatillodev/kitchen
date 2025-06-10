@@ -95,6 +95,7 @@ export const useOrderCreateStore = create((set)=> ({
         set((state) => ({
           orders: [...state.orders, result.order_id],
         }));
+        useOrderStore.getState().fetchOrders();
       } else {
         throw new Error(result.message || "Buyurtma yaratishda xatolik");
       }
@@ -132,6 +133,7 @@ export const useOrderUpdateStore = create(()=> ({
   
       if (result.success) {
         toast.success("Buyurtma muvaffaqiyatli yangilandi");
+        useOrderStore.getState().fetchOrders();
       } else {
         toast.error(result.message || "Yangilash bajarilmadi");
       }

@@ -29,10 +29,17 @@ export default function FilterDashboard({ search, setSearch, peopleCount, setPeo
           <Input
             placeholder="Odamlar soni"
             type="number"
+            min="0"
             value={peopleCount}
             onChange={(e) => setPeopleCount(e.target.value)}
-            className="w-full focus-visible:ring-0 focus-visible:ring-offset-0 "
+            onKeyDown={(e) => {
+              if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                e.preventDefault();
+              }
+            }}
+            className="w-full focus-visible:ring-0 focus-visible:ring-offset-0"
           />
+
         </div>
 
         <Select value={tableNumber} onValueChange={setTableNumber}>

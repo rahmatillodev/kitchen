@@ -18,15 +18,6 @@ import {
 import CheckModal from "../components/history/checkModal";
 import { useOrderStore } from "../stores/useOrderStore";
 
-const formatDate = (iso) =>
-  iso
-    ? new Date(iso).toLocaleString("uz-UZ", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "-";
 
 export default function HistoryPage() {
   const { allOrders, fetchCompletedOrders } = useOrderStore();
@@ -53,6 +44,7 @@ export default function HistoryPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>ID</TableHead>
                 <TableHead>Stol</TableHead>
                 <TableHead>Odamlar</TableHead>
                 <TableHead>Vaqti</TableHead>
@@ -63,9 +55,10 @@ export default function HistoryPage() {
             <TableBody>
               {completedOrders.map((order) => (
                 <TableRow key={order.id}>
+                  <TableCell>#{order.id}</TableCell>
                   <TableCell>{order.table ?? "-"}</TableCell>
                   <TableCell>{order.client_count ?? "-"}</TableCell>
-                  <TableCell>{formatDate(order.created_time)}</TableCell>
+                  <TableCell> {new Date(order.created_time).toLocaleString()}</TableCell>
                   <TableCell>
                     {parseFloat(order.total_price)?.toLocaleString("uz-UZ") ?? "-"} so'm
                   </TableCell>
@@ -89,7 +82,7 @@ export default function HistoryPage() {
                           <div className="space-y-2 text-sm">
                             <p>Stol: {selectedOrder.table ?? "-"}</p>
                             <p>Odamlar soni: {selectedOrder.client_count ?? "-"}</p>
-                            <p>Vaqti: {formatDate(selectedOrder.created_time)}</p>
+                            <p>Vaqti: {new Date(selectedOrder.created_time).toLocaleString()}</p>
                             <hr />
                             {selectedOrder.items?.length ? (
                               selectedOrder.items.map((item, i) => (

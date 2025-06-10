@@ -57,6 +57,7 @@ function OrderCard({ order, onCancel, onFinish }) {
       <div>
         <div className="flex justify-between items-center mb-2">
           <div>
+            <h3 className="text-md">ID: #{order.id}</h3>
             <h3 className="font-semibold text-md">Stol {order.table}</h3>
             <p className="text-sm text-gray-500">Odamlar: {order.client_count}</p>
           </div>

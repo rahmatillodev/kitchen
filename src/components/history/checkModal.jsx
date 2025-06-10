@@ -9,15 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-const formatDate = (iso) =>
-  iso
-    ? new Date(iso).toLocaleString("uz-UZ", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "";
 
 export default function CheckModal({ order, trigger }) {
   if (!order) return null;
@@ -43,7 +34,7 @@ export default function CheckModal({ order, trigger }) {
               <strong>Odamlar soni:</strong> {order.client_count}
             </p>
             <p>
-              <strong>Sana:</strong> {formatDate(order.created_time)}
+              <strong>Sana:</strong> {new Date(order.created_time).toLocaleString()}
             </p>
           </div>
 
