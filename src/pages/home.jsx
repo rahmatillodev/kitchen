@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { useMenuStore } from '../stores/useMenuStore';
+import { useCategoriesStore } from '../stores/useCategoryStore';
 import { useTipAmountStore } from '../stores/useTip_amountStore';
 import { useOrderCreateStore, useOrderUpdateStore } from '../stores/useOrderStore';
 import { useCartStore } from '../stores/cartStore';
@@ -13,8 +13,6 @@ import MenuBar from '../components/home/menuBar';
 
 export default function HomePage() {
   const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const isEditMode = query.get('edit');
   const {
     selectedItems,
     peopleCount,
@@ -29,7 +27,7 @@ export default function HomePage() {
 
   const { updateOrder } = useOrderUpdateStore();
   const { createOrder } = useOrderCreateStore();
-  const { menus, loading } = useMenuStore();
+  const { categories, loading } = useCategoriesStore();
   const { tipAmount } = useTipAmountStore();
 
   const [search, setSearch] = useState('');
@@ -74,9 +72,13 @@ export default function HomePage() {
     }
   };
 
-  const filteredProducts = menus.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = categories.map((category) => ({
+    ...category,
+    items: category.items.filter((item) =>
+      item.name.toLowerCase().includes(search.toLowerCase())
+    ),
+  })).filter(category => category.items.length > 0);
+  
 
   return (
     <div className="h-[calc(100vh-64px)] flex overflow-hidden">

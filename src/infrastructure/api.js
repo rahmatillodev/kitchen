@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
   ordersGet: `${BASE_URL}/orders/?s=p`,
   orders: `${BASE_URL}/orders/`,
   udateOrder: `${BASE_URL}/order/`,
+  categories: `${BASE_URL}/categories/`,
   amount: `${BASE_URL}/tip-amount/`,
   ordersStatusUpdate: `${BASE_URL}/order/status/`,
 };
