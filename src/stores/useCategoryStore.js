@@ -17,7 +17,6 @@ export const useCategoriesStore = create((set, get) => ({
       console.warn("Access token yo‘q");
       return;
     }
-
     set({ loading: true, error: null });
 
     try {

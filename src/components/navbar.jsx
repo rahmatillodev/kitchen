@@ -13,7 +13,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-white border-b h-16 sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center px-6 py-4">
+      <div className="mx-auto flex justify-between items-center px-6 py-4">
         <div className="flex items-center gap-4">
           <img src={logo} alt="Logo" className="h-8 w-8" />
           <h1 className="text-lg font-semibold text-gray-800">Kirish - Coca Coffeetalk</h1>
@@ -45,7 +45,6 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        {/* Mobil menyu tugmasi */}
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-[#828487] hover:text-[#ff5c00] transition-colors duration-300"
@@ -54,7 +53,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobil menyu (faqat ochilganda ko'rinadi) */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white py-2 px-4 shadow-md">
           <div className="flex flex-col gap-4">

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useCategoriesStore } from '../stores/useCategoryStore';
@@ -12,7 +11,6 @@ import ProductItems from '../components/home/productItems';
 import MenuBar from '../components/home/menuBar';
 
 export default function HomePage() {
-  const location = useLocation();
   const {
     selectedItems,
     peopleCount,

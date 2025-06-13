@@ -12,6 +12,7 @@ import { BiCheck, BiEdit } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from '../../stores/cartStore';
+import { useReactToPrint } from 'react-to-print';
 
 function OrderCard({ order, onCancel, onFinish }) {
   const [openCancel, setOpenCancel] = useState(false);
@@ -19,38 +20,36 @@ function OrderCard({ order, onCancel, onFinish }) {
   const printRef = useRef();
   const navigate = useNavigate();
   const setEditingOrder = useCartStore(state => state.setEditingOrder);
-  console.log(order);
 
   const handleEdit = () => {
     setEditingOrder(order);
     navigate('/dashboard?edit=true', { state: { order } });
   };
 
-  const handlePrint = () => {
-    const printContents = printRef.current.innerHTML;
-    const win = window.open('', '', 'width=800,height=600');
-    win.document.write(`
-      <html>
-        <head>
-          <title>Chek</title>
-          <style>
-            body { font-family: sans-serif; padding: 20px; }
-            .flex { display: flex; justify-content: space-between; }
-            .bold { font-weight: bold; }
-            .green { color: green; }
-            ul { padding: 0; list-style: none; }
-            li { margin-bottom: 6px; }
-            .border-b { border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 6px; }
-          </style>
-        </head>
-        <body>${printContents}</body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
-  };
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: `Order-${order.id}-Check`,
+    onBeforeGetContent: () =>
+      new Promise((resolve) => {
+        setTimeout(resolve, 300);
+      }),
+      pageStyle: `
+      @media print {
+        body {
+          width: 58mm;
+          font-family: monospace;
+          font-size: 10px;
+          margin: 0;
+          padding: 0;
+        }
+        .flex { display: flex; justify-content: space-between; }
+        .bold { font-weight: bold; }
+        .center { text-align: center; }
+        ul, li { padding: 0; margin: 0; list-style: none; }
+      }
+    `
+  });
+  
 
   return (
     <div className="w-full h-full border p-4 rounded-lg shadow-sm bg-white flex flex-col justify-between">
@@ -110,7 +109,8 @@ function OrderCard({ order, onCancel, onFinish }) {
             <DialogDescription>Buyurtma yakunlanmoqda, ma'lumotlarni tekshirib chiqing.</DialogDescription>
           </DialogHeader>
 
-          <div ref={printRef} className="text-sm text-gray-700 space-y-2 max-h-[300px] overflow-auto">
+          {/* Printable Component */}
+          <div ref={printRef} className="text-sm text-gray-700 space-y-2 max-h-[300px] overflow-auto p-4">
             <div className="border-b pb-2">
               <p><span className="font-semibold">Stol raqami:</span> {order.table}</p>
               <p><span className="font-semibold">Odamlar soni:</span> {order.client_count}</p>
@@ -143,7 +143,15 @@ function OrderCard({ order, onCancel, onFinish }) {
 
           <DialogFooter className="pt-2">
             <div className='flex justify-between w-full'>
-              <Button onClick={handlePrint}>Chekni olish</Button>
+              <Button onClick={() => {
+                if (printRef.current) {
+                  handlePrint();
+                } else {
+                  console.error("Hali hech narsa yuklanmagan");
+                }
+              }}>
+                Chekni chiqarish
+              </Button>
               <div className='flex gap-2'>
                 <Button variant="ghost" onClick={() => setOpenFinish(false)}>Orqaga</Button>
                 <Button onClick={() => {
